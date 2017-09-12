@@ -14,14 +14,22 @@ moduleForModel('event', 'Unit | Serializer | event', {
     'model:track',
     'model:ticket',
     'model:social-link',
+    'model:attendee',
     'model:speaker',
     'model:speakers-call',
     'model:email-notification',
+    'model:custom-form',
     'model:tax',
     'model:event-copyright',
     'model:session-type',
     'model:user',
+    'model:order-statistics-event',
+    'model:event-statistics-general',
+    'model:event-invoice',
     'model:discount-code',
+    'model:access-code',
+    'model:role-invite',
+    'model:order',
     'transform:moment'
   ]
 });

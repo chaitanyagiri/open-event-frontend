@@ -22,11 +22,11 @@
             <i class="content icon"></i>
           </button>
           {{#if isMenuOpen}}
-            {{public/side-menu class='toggle menu'}}
+            {{public/side-menu class='toggle menu' event=model}}
           {{/if}}
         {{else}}
           {{#ui-sticky context='#public-event-content' observeChanges=true}}
-            {{public/side-menu}}
+            {{public/side-menu event=model}}
           {{/ui-sticky}}
         {{/if}}
       </div>
@@ -34,7 +34,9 @@
         {{outlet}}
       </div>
       <div class="three wide column public">
-        {{public/social-links eventUrl=model.url socialLinks=model.socialLinks}}
+        {{#unless session.currentRouteName 'public.cfs.new-speaker'}}
+          {{public/social-links eventUrl=model.url socialLinks=model.socialLinks}}
+        {{/unless}}
       </div>
     </div>
   </div>

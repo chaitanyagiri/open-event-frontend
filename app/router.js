@@ -34,12 +34,15 @@ router.map(function() {
     this.route('sessions', function() {
       this.route('list', { path: '/:track_id' });
     });
-    this.route('cfs');
+    this.route('cfs', function() {
+      this.route('new-speaker');
+    });
     this.route('schedule');
+    this.route('coc');
   });
   this.route('create');
   this.route('not-found');
-  this.route('not-found-catch', { path: '/*path' });
+  this.route('pages', { path: '/*path' });
   this.route('events', function() {
     this.route('view', { path: '/:event_id' }, function() {
       this.route('edit', function() {
@@ -50,6 +53,7 @@ router.map(function() {
       this.route('export');
       this.route('sessions', function() {
         this.route('list', { path: '/:session_status' });
+        this.route('create');
       });
       this.route('tickets', function() {
         this.route('orders', function() {
@@ -71,6 +75,7 @@ router.map(function() {
       this.route('speakers', function() {
         this.route('list', { path: '/:speakers_status' });
       });
+      this.route('scheduler');
     });
     this.route('list', { path: '/:event_state' });
     this.route('import');
@@ -85,11 +90,10 @@ router.map(function() {
   });
   this.route('explore');
   this.route('my-tickets', function() {
-    this.route('saved');
-    this.route('past');
+    this.route('list', { path: '/:ticket_status' });
   });
   this.route('my-sessions', function() {
-    this.route('past');
+    this.route('list', { path: '/:session_status' });
   });
   this.route('notifications', function() {
     this.route('all');
@@ -112,6 +116,7 @@ router.map(function() {
     });
     this.route('users', function() {
       this.route('list', { path: '/:users_status' });
+      this.route('user', { path: '/u/:user_id' });
     });
     this.route('permissions', function() {
       this.route('event-roles');

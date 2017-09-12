@@ -83,22 +83,36 @@ export default ModelBase.extend(CustomPrimaryKeyMixin, {
   /**
    * Relationships
    */
-  type               : belongsTo('event-type'),
-  topic              : belongsTo('event-topic'),
-  subTopic           : belongsTo('event-sub-topic'),
-  sessions           : hasMany('session'),
-  sponsors           : hasMany('sponsor'),
-  microlocations     : hasMany('microlocation'),
-  tracks             : hasMany('track'),
-  tickets            : hasMany('ticket'),
-  socialLinks        : hasMany('social-link'),
-  emailNotifications : hasMany('email-notification'),
-  speakers           : hasMany('speaker'),
-  speakersCall       : belongsTo('speakers-call'),
-  tax                : belongsTo('tax'),
-  copyright          : belongsTo('event-copyright'),
-  sessionTypes       : hasMany('session-type'),
-  user               : belongsTo('user'),
+  type                   : belongsTo('event-type'),
+  topic                  : belongsTo('event-topic'),
+  subTopic               : belongsTo('event-sub-topic'),
+  sessions               : hasMany('session'),
+  sponsors               : hasMany('sponsor'),
+  microlocations         : hasMany('microlocation'),
+  tracks                 : hasMany('track'),
+  tickets                : hasMany('ticket'),
+  orders                 : hasMany('order'),
+  socialLinks            : hasMany('social-link'),
+  emailNotifications     : hasMany('email-notification'),
+  speakers               : hasMany('speaker'),
+  invoice                : hasMany('event-invoice'),
+  speakersCall           : belongsTo('speakers-call'),
+  eventStatisticsGeneral : belongsTo('event-statistics-general'),
+  tax                    : belongsTo('tax'),
+  copyright              : belongsTo('event-copyright'),
+  sessionTypes           : hasMany('session-type'),
+  user                   : belongsTo('user', {
+    inverse: 'events'
+  }),
+  customForms     : hasMany('custom-form'),
+  attendees       : hasMany('attendee'),
+  orderStatistics : belongsTo('order-statistics-event'),
+  roleInvites     : hasMany('role-invite'),
+  organizers      : hasMany('user'),
+  coorganizers    : hasMany('user'),
+  trackOrganizers : hasMany('user'),
+  registrars      : hasMany('user'),
+  moderators      : hasMany('user'),
 
   /**
    * The discount code applied to this event [Form(1) discount code]
@@ -113,6 +127,8 @@ export default ModelBase.extend(CustomPrimaryKeyMixin, {
    * @see app/models/discount-code.js
    */
   discountCodes: hasMany('discount-code'),
+
+  accessCodes: hasMany('access-code'),
 
   /**
    * Computed properties

@@ -13,6 +13,12 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
+## Communication
+
+Please join our mailing list to discuss questions regarding the project: https://groups.google.com/forum/#!forum/open-event
+
+Our chat channel is on Gitter here: [gitter.im/fossasia/open-event-frontend](https://gitter.im/fossasia/open-event-frontend)
+
 ## Prerequisites
 
 You will need the following things properly installed on your computer.
@@ -24,7 +30,7 @@ You will need the following things properly installed on your computer.
 * [PhantomJS](http://phantomjs.org/) - `npm install -g phantomjs-prebuilt`
 * [check-node-version](https://www.npmjs.com/package/check-node-version) - `npm install -g check-node-version`
 
-It is also recommended to have [watchman](https://facebook.github.io/watchman/docs/install.html) installed to speedup the file-watcher/auto-build service of the ember build server. 
+It is also recommended to have [watchman](https://facebook.github.io/watchman/docs/install.html) installed to speed up the file-watcher/auto-build service of the ember build server.
 
 ## Installation
 
@@ -70,8 +76,8 @@ This project has acceptance, integration and unit tests located inside the `test
 * [Semantic UI](https://semantic-ui.com/)
 * [Semantic-UI-Ember](https://semantic-org.github.io/Semantic-UI-Ember/)
 * Development Browser Extensions
-  * [ember inspector for chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
-  * [ember inspector for firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/)
+    * [ember inspector for chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
+    * [ember inspector for firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/)
 
 ## Contributions Best Practices
 
@@ -89,7 +95,7 @@ This project has acceptance, integration and unit tests located inside the `test
 **Join the development**
 
 * Before you join development, please set up the project on your local machine, run it and go through the application completely. Press on any button you can find and see where it leads to. Explore. (Don't worry ... Nothing will happen to the app or to you due to the exploring :wink: Only thing that will happen is, you'll be more familiar with what is where and might even get some cool ideas on how to improve various aspects of the app.)
-* If you would like to work on an issue, drop in a comment at the issue. If it is already assigned to someone, but there is no sign of any work being done, please free to drop in a comment so that the issue can be assigned to you if the previous assignee has dropped it entirely.
+* If you would like to work on an issue, drop in a comment at the issue. If it is already assigned to someone, but there is no sign of any work being done, please feel free to drop in a comment so that the issue can be assigned to you if the previous assignee has dropped it entirely.
 
 ## License
 

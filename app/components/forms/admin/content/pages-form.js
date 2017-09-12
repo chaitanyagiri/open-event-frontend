@@ -34,7 +34,16 @@ export default Component.extend(FormMixin, {
           rules      : [
             {
               type   : 'empty',
-              prompt : this.l10n.t('Please enter an url')
+              prompt : this.l10n.t('Please enter the path')
+            },
+            {
+              type   : 'regExp',
+              value  : '/[^/](.*)/',
+              prompt : this.l10n.t('Path should not contain leading slash.')
+            },
+            {
+              type   : 'doesntContain[ ]',
+              prompt : this.l10n.t('Path should not contain whitespaces.')
             }
           ]
         },
@@ -70,9 +79,21 @@ export default Component.extend(FormMixin, {
   },
 
   actions: {
-    submit() {
+    submit(data) {
       this.onValid(() => {
+        this.sendAction('save', data);
       });
+    },
+    deletePage(data) {
+      if (!this.get('isCreate')) {
+        data.destroyRecord();
+        this.set('isFormOpen', false);
+      }
+    },
+    close() {
+      if (this.get('isCreate')) {
+        this.set('isFormOpen', false);
+      }
     }
   }
 });

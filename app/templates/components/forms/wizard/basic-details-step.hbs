@@ -1,4 +1,4 @@
-<form class="ui form" autocomplete="off" {{action 'moveForward' on='submit' preventDefault=true}} novalidate>
+<form class="ui form {{if isLoading 'loading'}}" autocomplete="off" {{action 'moveForward' on='submit' preventDefault=true}} novalidate>
   <div class="field">
     <label class="required" for="name">{{t 'Name'}}</label>
     {{input type='text' id='name' value=data.event.name}}
@@ -10,7 +10,7 @@
       lat=data.event.latitude
       lng=data.event.longitude
       placeName=data.event.locationName
-      zoom=1
+      zoom=15
       placeholder=(t 'Location is required to make this event live')}}
       <div class="inline field">
         <div class="ui slider checkbox">
@@ -75,6 +75,15 @@
   <div class="fields">
     <div class="ten wide field">
       {{widgets/forms/image-upload
+        imageUrl=data.event.logoUrl
+        label=(t 'Logo')
+        id='event_logo'
+        icon='image'
+        hint=(t 'Select Logo')
+        maxSizeInKb=1000}}
+    </div>
+    <div class="ten wide field">
+      {{widgets/forms/image-upload
         imageUrl=data.event.originalImageUrl
         needsCropper=true
         label=(t 'Event Image')
@@ -83,15 +92,6 @@
         hint=(t 'Select Event Image')
         maxSizeInKb=10000
         helpText=(t 'We recommend using at least a 2160x1080px (2:1 ratio) image')}}
-    </div>
-    <div class="ten wide field">
-      {{widgets/forms/image-upload
-        imageUrl=data.event.logoUrl
-        label=(t 'Logo')
-        id='event_logo'
-        icon='image'
-        hint=(t 'Select Logo')
-        maxSizeInKb=1000}}
     </div>
   </div>
 
@@ -126,7 +126,7 @@
       addItem=(action 'addItem' 'socialLinks' 'social-link')
     }}
 
-    {{#each data.event.socialLinks as |socialLink|}}
+    {{#each socialLinks as |socialLink|}}
       {{widgets/forms/link-input
         hasLinkName=true
         linkName=socialLink.name
@@ -163,11 +163,11 @@
             </div>
           </div>
         </div>
-        {{#each data.event.tickets as |ticket index|}}
+        {{#each tickets as |ticket index|}}
           {{widgets/forms/ticket-input ticket=ticket
                                        timezone=data.event.timezone
                                        canMoveUp=(not-eq index 0)
-                                       canMoveDown=(not-eq ticket data.event.tickets.lastObject)
+                                       canMoveDown=(not-eq ticket.position (dec data.event.tickets.length))
                                        moveTicketUp=(action 'moveTicket' ticket 'up')
                                        moveTicketDown=(action 'moveTicket' ticket 'down')
                                        removeTicket=(confirm 'Are you sure you wish to delete this ticket ?' (action 'removeTicket' ticket))}}
@@ -178,22 +178,20 @@
         </h3>
       {{/if}}
     </div>
-    <div class="ui two bottom attached buttons">
-      <button type="button" class="ui button" {{action 'addTicket' 'free'}}>
-        <i class="large icons basic-details">
-          <i class="smile icon"></i>
-          <i class="inverted corner add icon"></i>
-        </i>
-        {{t 'Free Ticket'}}
-      </button>
-      <button type="button" class="ui button" {{action 'addTicket' 'paid'}}>
-        <i class="large icons basic-details">
-          <i class="dollar icon"></i>
-          <i class="inverted corner add icon"></i>
-        </i>
-        {{t 'Paid Ticket'}}
-      </button>
-    </div>
+    <button type="button" class="ui blue small button" {{action 'addTicket' 'free' data.event.tickets.length}}>
+      <i class="large icons basic-details">
+        <i class="smile icon"></i>
+        <i class="inverted corner add icon"></i>
+      </i>
+      {{t 'Free Ticket'}}
+    </button>
+    <button type="button" class="ui blue small button" {{action 'addTicket' 'paid' data.event.tickets.length}}>
+      <i class="large icons basic-details">
+        <i class="dollar icon"></i>
+        <i class="inverted corner add icon"></i>
+      </i>
+      {{t 'Paid Ticket'}}
+    </button>
   {{else}}
     <div class="field">
       <label class="required" for="ticket_url">{{t 'Ticket URL'}}</label>
@@ -446,9 +444,9 @@
 
   <div class="field">
     <label>{{t 'Event Type'}}</label>
-    {{#ui-dropdown class='search selection' selected=data.event.type onChange=(action (mut data.event.type)) as |execute mapper|}}
+    {{#ui-dropdown class='search selection' onChange=(action (mut data.event.type)) as |execute mapper|}}
       <i class="dropdown icon"></i>
-      <div class="default text">{{t 'Select Event Type'}}</div>
+      <div class="default text">{{if data.event.type.name data.event.type.name (t 'Select Event Type')}}</div>
       <div class="menu">
         {{#each data.types as |type|}}
           <div class="item" data-value="{{map-value mapper type}}">{{type.name}}</div>
@@ -458,9 +456,9 @@
   </div>
   <div class="field">
     <label>{{t 'Event Topic'}}</label>
-    {{#ui-dropdown class='search selection' selected=data.event.topic onChange=(action (mut data.event.topic)) as |execute mapper|}}
+    {{#ui-dropdown class='search selection' onChange=(action (mut data.event.topic)) as |execute mapper|}}
       <i class="dropdown icon"></i>
-      <div class="default text">{{t 'Select Event Topic'}}</div>
+      <div class="default text">{{if data.event.topic.name data.event.topic.name (t 'Select Event Topic')}}</div>
       <div class="menu">
         {{#each data.topics as |topic|}}
           <div class="item" data-value="{{map-value mapper topic}}">{{topic.name}}</div>
@@ -470,9 +468,10 @@
   </div>
   <div class="field">
     <label>{{t 'Event Sub-topic'}}</label>
-    {{#ui-dropdown class='search selection' selected=data.event.subTopic onChange=(action (mut data.event.subTopic)) as |execute mapper|}}
+    {{#ui-dropdown class='search selection' onChange=(action (mut data.event.subTopic)) as |execute mapper|}}
       <i class="dropdown icon"></i>
-      <div class="default text">{{t 'Select Event Sub-Topic'}}</div>
+
+      <div class="default text">{{if data.event.subTopic.name data.event.subTopic.name (t 'Select Event Sub-Topic')}}</div>
       <div class="menu">
         {{#each subTopics as |subTopic|}}
           <div class="item" data-value="{{map-value mapper subTopic}}">{{subTopic.name}}</div>
@@ -491,7 +490,7 @@
   {{#if hasCodeOfConduct}}
     <div class="field">
       <label for="code_of_conduct">{{t 'Code of Conduct'}}</label>
-      {{widgets/forms/rich-text-editor textareaId='code_of_conduct'}}
+      {{widgets/forms/rich-text-editor textareaId='code_of_conduct' value=data.event.codeOfConduct}}
     </div>
   {{/if}}
   <div class="ui section divider"></div>
@@ -516,7 +515,7 @@
         </div>
       </div>
     </label>
-    {{#ui-dropdown class='search selection' selected=data.event.copyright.licence forceSelection=false fullTextSearch=true}}
+    {{#ui-dropdown class='search selection' selected=data.event.copyright.licence onChange=(action 'updateCopyright') forceSelection=false fullTextSearch=true}}
       {{input type='hidden' id='license' value=data.event.copyright.licence}}
       <i class="dropdown icon"></i>
       <div class="default text">{{t 'Select License'}}</div>
@@ -529,16 +528,16 @@
   </div>
   <br>
   <div class="{{unless device.isMobile 'right floated large' 'mini three'}} ui buttons">
-    <button class="ui right labeled icon button" type="button" {{action 'moveForward'}}>
+    <button class="ui right labeled icon button {{if isLoading 'disabled'}}" type="button" {{action 'moveForward'}}>
       {{t 'Forward'}}
       <i class="right chevron icon"></i>
     </button>
-    <button class="blue ui right labeled icon button" type="button" {{action 'saveDraft'}}>
+    <button class="blue ui right labeled icon button {{if isLoading 'disabled'}}" type="button" {{action 'saveDraft'}}>
       {{t 'Save draft'}}
       <i class="save icon"></i>
     </button>
     {{#if data.event.locationName}}
-      <button class="green ui right labeled icon button" type="button" {{action 'publish'}}>
+      <button class="green ui right labeled icon button {{if isLoading 'disabled'}}" type="button" {{action 'publish'}}>
         {{t 'Publish'}}
         <i class="check icon"></i>
       </button>

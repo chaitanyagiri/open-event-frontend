@@ -15,44 +15,33 @@ export default Route.extend(ApplicationRouteMixin, {
 
   beforeModel() {
     this._super(...arguments);
-    this.get('authManager').initialize();
+    // Returning a promise here will cause ember to wait until the promise is resolved before moving on to the model
+    return this.get('authManager').initialize();
   },
+
   model() {
+    let notifications = [];
+    if (this.get('session.isAuthenticated')) {
+      notifications = this.get('authManager.currentUser').query('notifications', {
+        filter: [
+          {
+            name : 'is-read',
+            op   : 'eq',
+            val  : false
+          }
+        ],
+        sort: '-received-at'
+      });
+    }
     return RSVP.hash({
-      notifications: [
-        {
-          title       : 'New Session Proposal for event1 by  user1',
-          description : 'Title of proposal',
-          createdAt   : new Date(),
-          isRead      : false
-        },
-        {
-          title       : 'New Session Proposal for event2 by  user2',
-          description : 'Title of proposal',
-          createdAt   : new Date(),
-          isRead      : true
-        },
-        {
-          title       : 'New Session Proposal for event3 by  user3',
-          description : 'Title of proposal',
-          createdAt   : new Date(),
-          isRead      : false
-        },
-        {
-          title       : 'New Session Proposal for event4 by  user4',
-          description : 'Title of proposal',
-          createdAt   : new Date(),
-          isRead      : true
-        },
-        {
-          title       : 'New Session Proposal for event5 by  user5',
-          description : 'Title of proposal',
-          createdAt   : new Date(),
-          isRead      : false
-        }
-      ]
+      notifications,
+      pages: this.get('store').query('page', {
+        sort: 'index'
+      }),
+      socialLinks: this.get('store').queryRecord('setting', {})
     });
   },
+
   sessionInvalidated() {
     if (!this.get('session.skipRedirectOnInvalidation')) {
       this._super(...arguments);

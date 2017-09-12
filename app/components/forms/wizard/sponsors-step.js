@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import FormMixin from 'open-event-frontend/mixins/form';
 
-const { Component } = Ember;
+const { Component, computed } = Ember;
 
 export default Component.extend(FormMixin, {
 
@@ -23,36 +23,39 @@ export default Component.extend(FormMixin, {
     };
   },
 
+  sponsors: computed('data.sponsors.@each.isDeleted', function() {
+    return this.get('data.sponsors').filterBy('isDeleted', false);
+  }),
+
   actions: {
     addSponsor() {
-      this.get('data.event.sponsors').addObject(this.store.createRecord('sponsor'));
+      this.get('data.sponsors').addObject(this.store.createRecord('sponsor'));
     },
     removeSponsor(sponsor) {
-      this.get('data.event.sponsors').removeObject(sponsor);
-      sponsor.unloadRecord();
+      sponsor.deleteRecord();
     },
     saveDraft() {
       this.onValid(() => {
         this.set('data.event.state', 'draft');
-        this.get('save')('draft');
+        this.sendAction('save');
       });
     },
     moveForward() {
       this.onValid(() => {
-        this.get('move')();
+        this.sendAction('move');
       });
     },
     publish() {
       this.onValid(() => {
         this.set('data.event.state', 'published');
-        this.get('save')('publish');
+        this.sendAction('save');
       });
     }
   },
 
   didInsertElement() {
-    if (this.get('data.event.sponsors') && !this.get('data.event.sponsors.length')) {
-      this.get('data.event.sponsors').addObject(this.store.createRecord('sponsor'));
+    if (this.get('data.sponsors') && !this.get('data.sponsors.length')) {
+      this.get('data.sponsors').addObject(this.store.createRecord('sponsor'));
     }
   }
 });

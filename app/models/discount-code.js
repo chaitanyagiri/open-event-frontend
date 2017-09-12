@@ -18,12 +18,14 @@ export default ModelBase.extend({
   minQuantity   : attr('number'), // Not of any significance for form (1)
   maxQuantity   : attr('number'), // For form (1) this holds the number of months this code is valid for events
   validFrom     : attr('moment'),
+  discountUrl   : attr('string'),
   validTill     : attr('moment'),
   usedFor       : attr('string'),
   isActive      : attr('boolean', { defaultValue: true }),
   createdAt     : attr('moment'),
 
   tickets : hasMany('ticket'),
+  orders  : hasMany('order'),
   event   : belongsTo('event', {
     inverse: 'discountCodes'
   }), // The event that this discount code belongs to [Form (2)]

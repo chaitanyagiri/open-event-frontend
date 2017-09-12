@@ -14,11 +14,17 @@ moduleForModel('event', 'Unit | Model | event', {
     'model:speaker',
     'model:speakers-call',
     'model:tax',
+    'model:attendee',
+    'model:custom-form',
     'model:event-copyright',
     'model:session-type',
     'model:user',
+    'model:event-invoice',
     'model:discount-code',
-    'model:email-notification'
+    'model:access-code',
+    'model:email-notification',
+    'model:order',
+    'model:role-invite'
   ]
 });
 

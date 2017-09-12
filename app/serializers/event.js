@@ -9,5 +9,27 @@ export default ApplicationSerializer.extend(CustomPrimaryKeyMixin, {
     topic     : 'event-topic',
     subTopic  : 'event-sub-topic',
     copyright : 'event-copyright'
+  },
+  normalize() {
+    const payload = this._super(...arguments);
+    payload.data = this.addLinks(payload.data);
+    return payload;
+  },
+
+  addLinks(event) {
+    event.relationships.eventStatisticsGeneral = {
+      links: {
+        related : `/v1/events/${event.id}/general-statistics`,
+        self    : `/v1/events/${event.id}/general-statistics`
+      }
+    };
+    event.relationships.orderStatistics = {
+      links: {
+        related : `/v1/events/${event.id}/order-statistics`,
+        self    : `/v1/events/${event.id}/order-statistics`
+      }
+    };
+    return event;
   }
+
 });

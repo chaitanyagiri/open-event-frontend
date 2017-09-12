@@ -1,6 +1,6 @@
 import attr from 'ember-data/attr';
 import ModelBase from 'open-event-frontend/models/base';
-import { belongsTo } from 'ember-data/relationships';
+import { belongsTo, hasMany } from 'ember-data/relationships';
 import { computedDateTimeSplit } from 'open-event-frontend/utils/computed-helpers';
 
 export default ModelBase.extend({
@@ -28,8 +28,9 @@ export default ModelBase.extend({
   sessionType   : belongsTo('session-type'),
   microlocation : belongsTo('microlocation'),
   track         : belongsTo('track'),
-  // speakers      : hasMany('speaker'), temporarily commented out
+  speakers      : hasMany('speaker'),
   event         : belongsTo('event'), // temporary
+  user          : belongsTo('user'),
 
   startAtDate : computedDateTimeSplit.bind(this)('startsAt', 'date'),
   startAtTime : computedDateTimeSplit.bind(this)('startsAt', 'time'),

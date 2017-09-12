@@ -35,11 +35,22 @@ export default ModelBase.extend({
   deletedAt      : attr('moment', { readOnly: true }),
   lastAccessedAt : attr('moment', { readOnly: true }),
 
+  status: computed('lastAccessedAt', function() {
+    return (new Date().getMonth() - new Date(this.get('lastAccessedAt')).getMonth() < 1);
+  }),
   isAnAdmin: computed.or('isSuperAdmin', 'isAdmin'),
 
-  emailNotifications: hasMany('email-notification'),
-
-  events: hasMany('event'),
+  /**
+   * Relationships
+   */
+  emailNotifications : hasMany('email-notification'),
+  notifications      : hasMany('notification'),
+  orders             : hasMany('order'),
+  events             : hasMany('event'),
+  sessions           : hasMany('session'),
+  invoice            : hasMany('event-invoice'),
+  attendees          : hasMany('attendee'),
+  speakers           : hasMany('speaker'),
 
   _didUpdate: on('didUpdate', function(user) {
     if (toString(user.id) === toString(this.get('authManager.currentUser.id'))) {

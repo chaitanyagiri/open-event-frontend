@@ -2,10 +2,8 @@
   {{#link-to 'index' class='item' activeClass=''}}{{t 'Browse Events'}}{{/link-to}}
   {{#if session.isAuthenticated}}
     <div class="item">
-      <img class="ui avatar round image side-bar"
-           alt="{{authManager.currentUser.email}}"
-           src="{{if authManager.currentUser.avatarUrl authManager.currentUser.avatarUrl
-                     '/images/placeholders/avatar.png'}}">
+      {{widgets/safe-image isAvatar=true class='ui avatar round image side-bar' src=(if authManager.currentUser.avatarUrl authManager.currentUser.avatarUrl
+                '/images/placeholders/avatar.png')}}
       {{if authManager.currentUser
            (if authManager.currentUser.firstName authManager.currentUser.firstName authManager.currentUser.email)
            'Welcome'}}
@@ -16,7 +14,9 @@
     <div class="divider"></div>
     <a href="{{href-to 'profile'}}" class="item">{{t 'Profile'}}</a>
     <a href="{{href-to 'settings.contact-info'}}" class="item">{{t 'Settings'}}</a>
-    <a href="{{href-to 'admin'}}" class="item">{{t 'Admin'}}</a>
+    {{#if authManager.currentUser.isAnAdmin}}
+      <a href="{{href-to 'admin'}}" class="item">{{t 'Admin'}}</a>
+    {{/if}}
     <div class="divider"></div>
     <a class="item logout-button" href="{{href-to 'logout'}}">{{t 'Logout'}}</a>
   {{else}}

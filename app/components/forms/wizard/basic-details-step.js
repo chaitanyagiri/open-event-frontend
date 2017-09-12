@@ -1,11 +1,11 @@
 import Ember from 'ember';
 import moment from 'moment';
 import { licenses } from 'open-event-frontend/utils/dictionary/licenses';
-import { FORM_DATE_FORMAT, timezones } from 'open-event-frontend/utils/dictionary/date-time';
+import { timezones } from 'open-event-frontend/utils/dictionary/date-time';
 import { paymentCountries, paymentCurrencies } from 'open-event-frontend/utils/dictionary/payment';
 import { countries } from 'open-event-frontend/utils/dictionary/demography';
 import FormMixin from 'open-event-frontend/mixins/form';
-import { orderBy, filter, find, values } from 'lodash';
+import { orderBy, filter, find } from 'lodash';
 
 const { Component, computed, run: { later }, observer } = Ember;
 
@@ -158,26 +158,6 @@ export default Component.extend(FormMixin, {
     };
   },
 
-  segmentedExternalTicketUrl: computed('data.event.externalTicketUrl', {
-    get() {
-      const splitted = this.get('data.event.externalTicketUrl') ? this.get('data.event.externalTicketUrl').split('://') : [];
-      if (!splitted || splitted.length === 0 || (splitted.length === 1 && splitted[0].includes('http'))) {
-        return {
-          protocol : 'https',
-          address  : ''
-        };
-      }
-      return {
-        protocol : splitted[0],
-        address  : splitted[1]
-      };
-    },
-    set(key, value) {
-      this.set('data.event.externalTicketUrl', values(value).join('://'));
-      return value;
-    }
-  }),
-
   timezones: computed(function() {
     return timezones;
   }),
@@ -206,6 +186,14 @@ export default Component.extend(FormMixin, {
     return find(paymentCurrencies, ['code', this.get('data.event.paymentCurrency')]).stripe;
   }),
 
+  tickets: computed('data.event.tickets.@each.isDeleted', 'data.event.tickets.@each.position', function() {
+    return this.get('data.event.tickets').sortBy('position').filterBy('isDeleted', false);
+  }),
+
+  socialLinks: computed('data.event.socialLinks.@each.isDeleted', function() {
+    return this.get('data.event.socialLinks').filterBy('isDeleted', false);
+  }),
+
   subTopics: computed('data.event.topic', function() {
     later(this, () => {
       try {
@@ -232,52 +220,57 @@ export default Component.extend(FormMixin, {
   actions: {
     saveDraft() {
       this.onValid(() => {
-        this.get('save')('draft');
+        this.set('data.event.state', 'draft');
+        this.sendAction('save');
       });
     },
     moveForward() {
       this.onValid(() => {
-        this.get('move')();
+        this.sendAction('move');
       });
     },
     publish() {
       this.onValid(() => {
         this.set('data.event.state', 'published');
-        this.get('save')('publish');
+        this.sendAction('save');
       });
     },
-    addTicket(type) {
-      const salesStartDateTime = moment(this.get('data.event.startDate'), FORM_DATE_FORMAT).subtract(1, 'months');
-      const salesEndDateTime = salesStartDateTime.clone().add(10, 'days');
+    addTicket(type, position) {
+      const salesStartDateTime = moment();
+      const salesEndDateTime = this.get('data.event.startsAt');
       this.get('data.event.tickets').pushObject(this.store.createRecord('ticket', {
         type,
-        salesStartDateTime : salesStartDateTime.toDate(),
-        salesEndDateTime   : salesEndDateTime.toDate()
+        position,
+        salesStartsAt : salesStartDateTime,
+        salesEndsAt   : salesEndDateTime
       }));
     },
-    removeTicket(ticket) {
-      ticket.unloadRecord();
-      this.get('data.event.tickets').removeObject(ticket);
+    removeTicket(deleteTicket) {
+      const index = deleteTicket.get('position');
+      this.get('data.event.tickets').forEach(ticket => {
+        if (ticket.get('position') > index) {
+          ticket.set('position', ticket.get('position') - 1);
+        }
+      });
+      deleteTicket.deleteRecord();
     },
     moveTicket(ticket, direction) {
-      const index = this.get('data.event.tickets').indexOf(ticket);
-      this.get('data.event.tickets').removeAt(index);
-      this.get('data.event.tickets').insertAt(direction === 'up' ? (index - 1) : (index + 1), ticket);
+      const index = ticket.get('position');
+      const otherTicket = this.get('data.event.tickets').find(otherTicket => otherTicket.get('position') === (direction === 'up' ? (index - 1) : (index + 1)));
+      otherTicket.set('position', index);
+      ticket.set('position', direction === 'up' ? (index - 1) : (index + 1));
     },
     addItem(type, model) {
       this.get(`data.event.${type}`).pushObject(this.store.createRecord(model));
     },
-    removeItem(item, type) {
-      item.unloadRecord();
-      this.get(`data.event.${type}`).removeObject(item);
+    removeItem(item) {
+      item.deleteRecord();
     },
     openTaxModal() {
       this.set('taxModalIsOpen', true);
     },
     deleteTaxInformation() {
       this.set('data.event.isTaxEnabled', false);
-      this.get('data.event.tax').unloadRecord();
-      this.set('data.event.tax', this.store.createRecord('tax'));
     },
     redeemDiscountCode() {
       this.set('validatingDiscountCode', true);
@@ -309,6 +302,19 @@ export default Component.extend(FormMixin, {
       var endDate = this.get('data.event.endsAt');
       this.set('data.event.startsAt', moment.tz(startDate, timezone));
       this.set('data.event.endsAt', moment.tz(endDate, timezone));
+    },
+    updateCopyright() {
+      let license = find(licenses, { name: this.get('data.event.copyright.licence') });
+      this.set('data.event.copyright.logoUrl', license.logoUrl);
+      this.set('data.event.copyright.licenceUrl', license.link);
+    }
+  },
+  didInsertElement() {
+    if (!this.get('isCreate') && this.get('data.event.copyright') && !this.get('data.event.copyright.content')) {
+      this.set('data.event.copyright', this.store.createRecord('event-copyright'));
+    }
+    if (!this.get('isCreate') && this.get('data.event.tax') && !this.get('data.event.tax.content')) {
+      this.set('data.event.tax', this.store.createRecord('tax'));
     }
   }
 });
